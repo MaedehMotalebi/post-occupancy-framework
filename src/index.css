@@ -1,0 +1,778 @@
+/* =========================================================
+   GLOBAL RESET & BASICS
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: #0f172a;
+  background: #e5e7eb;
+}
+
+/* =========================================================
+   PHASE-LIKE PAGE WRAPPER (for design/post-occupancy phases)
+   ========================================================= */
+
+.phase-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #e0f2fe 0, #f9fafb 40%, #fffbeb 100%);
+  padding: 16px;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.phase-inner {
+  width: 100%;
+  max-width: 1120px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
+  padding: 18px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* =========================================================
+   HEADER (TITLE, INTRO, CONTROLS)
+   ========================================================= */
+
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  padding-bottom: 10px;
+}
+
+.phase-header h1 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+
+.phase-header p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.header-left {
+  flex: 1.6;
+  min-width: 0;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.06);
+  color: #1d4ed8;
+  font-size: 10px;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.btn {
+  border-radius: 999px;
+  border: none;
+  font-size: 10px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.16s ease-out;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #f9fafb;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.45);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.04);
+  transform: translateY(-0.5px);
+}
+
+.btn-ghost {
+  background: rgba(148, 163, 184, 0.12);
+  color: #0f172a;
+}
+
+.btn-ghost:hover {
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.btn-secondary {
+  background: #f97316;
+  color: #fff7ed;
+  box-shadow: 0 8px 18px rgba(248, 113, 22, 0.45);
+}
+
+.btn-secondary:hover {
+  filter: brightness(1.04);
+  transform: translateY(-0.5px);
+}
+
+/* Chip-toggle used for BTS/BTR choice */
+.btn-chip {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 10px;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  background: #e5e7eb;
+  color: #111827;
+  transition: all 0.16s ease-out;
+}
+
+.btn-chip-bts-active {
+  background: rgba(249, 250, 251, 1);
+  border-color: rgba(37, 99, 235, 0.5);
+  color: #1d4ed8;
+}
+
+.btn-chip-btr-active {
+  background: rgba(249, 250, 251, 1);
+  border-color: rgba(16, 185, 129, 0.6);
+  color: #047857;
+}
+
+/* =========================================================
+   GUIDANCE + LEGEND ROW
+   ========================================================= */
+
+.guidance-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+  gap: 12px;
+}
+
+.guidance-card,
+.legend-card {
+  border-radius: 14px;
+  padding: 10px 11px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #f9fafb;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+}
+
+.guidance-card h2,
+.legend-card h2 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+
+.guidance-card ol {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.guidance-card li + li {
+  margin-top: 3px;
+}
+
+/* Legend */
+.legend-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
+}
+
+.legend-dev {
+  background: #facc15;
+}
+
+.legend-platform {
+  background: #3b82f6;
+}
+
+.legend-advisory {
+  background: #22c55e;
+}
+
+.legend-users {
+  background: #a855f7;
+}
+
+/* DB legend mini-row */
+.legend-db {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.legend-db-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: #4b5563;
+}
+
+.legend-db-row span:first-of-type {
+  font-weight: 600;
+}
+
+.legend-db-desc {
+  opacity: 0.8;
+}
+
+/* =========================================================
+   GATE GRID (TOP CARDS)
+   ========================================================= */
+
+.gate-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+/* =========================================================
+   NUMBER BADGES & SMALL TAGS
+   ========================================================= */
+
+.badge-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-right: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #e5e7eb;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.12);
+}
+
+.badge-yellow {
+  background: #facc15;
+  border-color: #eab308;
+}
+
+.badge-blue {
+  background: #3b82f6;
+  border-color: #2563eb;
+  color: #eff6ff;
+}
+
+.badge-green {
+  background: #22c55e;
+  border-color: #16a34a;
+  color: #ecfdf3;
+}
+
+.badge-purple {
+  background: #a855f7;
+  border-color: #7c3aed;
+  color: #f9f5ff;
+}
+
+.badge-amber {
+  background: #fb923c;
+  border-color: #f97316;
+  color: #fffbeb;
+}
+
+.time-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px dashed rgba(148, 163, 184, 0.9);
+  padding: 2px 7px;
+  font-size: 9px;
+  color: #4b5563;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+/* =========================================================
+   CARD COMPONENT (PROCESS BLOCKS)
+   ========================================================= */
+
+.card {
+  border-radius: 14px;
+  padding: 9px 10px;
+  margin-bottom: 7px;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+  position: relative;
+  overflow: visible;
+}
+
+.card-yellow {
+  border-color: rgba(234, 179, 8, 0.7);
+  background: linear-gradient(135deg, #fef9c3, #fffbeb);
+}
+
+.card-blue {
+  border-color: rgba(37, 99, 235, 0.72);
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+}
+
+.card-green {
+  border-color: rgba(34, 197, 94, 0.75);
+  background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+}
+
+.card-purple {
+  border-color: rgba(168, 85, 247, 0.75);
+  background: linear-gradient(135deg, #f5f3ff, #fdf4ff);
+}
+
+.card-amber {
+  border-color: rgba(249, 115, 22, 0.75);
+  background: linear-gradient(135deg, #ffedd5, #fef3c7);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.card-title-yellow {
+  color: #92400e;
+}
+
+.card-title-blue {
+  color: #1d4ed8;
+}
+
+.card-title-green {
+  color: #166534;
+}
+
+.card-title-purple {
+  color: #6b21a8;
+}
+
+.card-title-amber {
+  color: #c2410c;
+}
+
+.card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+.card-text,
+.card-inline {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #111827;
+}
+
+.card-inline {
+  margin-bottom: 4px;
+}
+
+.card-list {
+  margin: 4px 0 0;
+  padding-left: 15px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #111827;
+}
+
+.card-list li + li {
+  margin-top: 2px;
+}
+
+/* Delivery toggle inside a card */
+.delivery-toggle {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10px;
+}
+
+/* =========================================================
+   STEP CARDS (BLUE SMALL BLOCKS INSIDE PLATFORM)
+   ========================================================= */
+
+.step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding: 4px 7px;
+  border-radius: 10px;
+  background: rgba(239, 246, 255, 0.9);
+  border: 1px solid rgba(191, 219, 254, 0.8);
+  position: relative;
+  cursor: pointer;
+}
+
+.step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #1d4ed8;
+  color: #eff6ff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.5);
+}
+
+.step-label {
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #1e293b;
+}
+
+/* =========================================================
+   SUPPORT TOOLTIP (HOVER DETAILS)
+   ========================================================= */
+
+/* Tooltip: white background, dark text */
+.support-tooltip {
+  position: absolute;
+  z-index: 40;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  max-width: 340px;
+
+  background: #ffffff;           /* ⬅⬅ changed from dark to white */
+  color: #0f172a;                /* dark text */
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+}
+
+/* Optional: make headings slightly stronger on white */
+.support-title {
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: #111827;
+}
+
+.support-type {
+  font-weight: 600;
+  color: #374151;
+}
+
+.support-link {
+  color: #111827;
+}
+
+/* =========================================================
+   MAIN LAYOUT: COLUMNS & SIDE PANEL
+   ========================================================= */
+
+.phase-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(260px, 1.3fr);
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.phase-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.9fr) minmax(0, 1.3fr) minmax(
+      0,
+      1.3fr
+    );
+  gap: 10px;
+}
+
+.phase-col {
+  min-width: 0;
+}
+
+.phase-col-wide {
+  grid-column: span 1;
+}
+
+/* ---------------------------------------------------------
+   Reveal animation wrappers
+   --------------------------------------------------------- */
+
+.reveal-block {
+  position: relative;
+}
+
+/* =========================================================
+   SIDE PANEL – DATABASE LAYERS
+   ========================================================= */
+
+.phase-side {
+  position: sticky;
+  top: 10px;
+}
+
+.side-card {
+  border-radius: 14px;
+  padding: 10px 11px 9px;
+  border: 1px solid rgba(148, 163, 184, 0.65);
+  background: #f9fafb;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+  font-size: 10px;
+}
+
+.side-card h2 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #0f172a;
+}
+
+.db-layer {
+  border-radius: 10px;
+  padding: 6px 7px;
+  margin-bottom: 5px;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.65);
+}
+
+.db-layer-passive {
+  background: #f9fafb;
+  opacity: 0.9;
+}
+
+.db-layer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.db-layer p {
+  margin: 0;
+  font-size: 9px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+/* DB tags (READ / WRITE / UPDATE) */
+
+.db-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 1px 6px;
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.db-tag-read {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(37, 99, 235, 0.6);
+  color: #1d4ed8;
+}
+
+.db-tag-write {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.7);
+  color: #15803d;
+}
+
+.db-tag-update {
+  background: rgba(249, 115, 22, 0.08);
+  border-color: rgba(249, 115, 22, 0.9);
+  color: #c2410c;
+}
+
+/* =========================================================
+   ARROW LINES BETWEEN CARDS (PLANNING STYLE)
+   ========================================================= */
+
+.arrow-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0;
+}
+
+.arrow-icon {
+  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.35));
+}
+
+.arrow-yellow {
+  color: #eab308;
+}
+
+.arrow-blue {
+  color: #2563eb;
+}
+
+.arrow-green {
+  color: #16a34a;
+}
+
+.arrow-purple {
+  color: #7c3aed;
+}
+
+/* =========================================================
+   RESPONSIVE TWEAKS
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .phase-inner {
+    padding: 14px 12px 16px;
+  }
+
+  .phase-header {
+    flex-direction: column;
+  }
+
+  .guidance-row,
+  .gate-grid,
+  .phase-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .phase-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .phase-side {
+    position: static;
+  }
+
+  .support-tooltip {
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 640px) {
+  .phase-page {
+    padding: 8px;
+  }
+
+  .phase-inner {
+    border-radius: 12px;
+  }
+
+  .phase-header h1 {
+    font-size: 18px;
+  }
+}
