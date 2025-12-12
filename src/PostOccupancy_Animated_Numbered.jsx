@@ -24,9 +24,15 @@ import {
   AlertTriangle,
   Home,
   BarChart3,
+  PackageCheck,
 } from "lucide-react";
 
-const MAX_ORDER = 24;
+/**
+ * IMPORTANT:
+ * We now enforce: Reveal order === Process number.
+ * Therefore, processes appear in strict numeric order on screen.
+ */
+const MAX_ORDER = 20;
 
 // ---------------------------------------------------------------------------
 // Supporting standards / documents (tooltip content) — POST-OCCUPANCY
@@ -177,14 +183,27 @@ const SUPPORTING_SOURCES = {
         "FAIR data principles and portfolio-level governance for keeping a traceable POE record",
     },
   ],
+  "po-packaging": [
+    {
+      type: "Practice",
+      label:
+        "Option packaging and prioritisation practice for FM interventions (scope, risk, disruption, benefit)",
+    },
+    {
+      type: "Governance",
+      label:
+        "Version-controlled evidence packs and decision records for auditable POE outcomes",
+    },
+  ],
 };
 
 // ---------------------------------------------------------------------------
 // DB events (which layers light up at which reveal steps)
+// NOTE: Triggers are aligned with the corrected process numbers.
 // ---------------------------------------------------------------------------
 
 const DB_EVENTS = {
-  // L1 – as-built brief and configuration (read, rarely written)
+  // L1 – as-built brief and configuration
   l1_brief_read: [4],
 
   // L2 – resident & operational input
@@ -192,37 +211,33 @@ const DB_EVENTS = {
   l2_feedback_read: [11],
 
   // L3 – decision log and option catalogue
-  l3_decision_read: [4],
-  l3_decision_write: [20],
+  l3_decision_read: [4, 15],
+  l3_decision_write: [17, 20],
 
   // L4 – performance & cost metrics
-  l4_metrics_read: [4, 8],
-  l4_metrics_write: [5, 8],
+  l4_metrics_read: [4, 8, 15],
+  l4_metrics_write: [5, 8, 15],
 
-  // L5 – post-occupancy performance
-  l5_po_write: [5, 6],
-  l5_po_read: [8, 11],
+  // L5 – post-occupancy performance records
+  l5_po_write: [5, 6, 9],
+  l5_po_read: [8, 11, 15],
 
   // L6 – knowledge hub & patterns
-  l6_learning_read: [4, 8],
-  l6_learning_update: [19],
+  l6_learning_read: [4, 8, 15],
+  l6_learning_update: [19, 20],
 
   // L7 – governance, roles & standards
-  l7_governance_update: [3, 15, 21],
+  l7_governance_update: [3, 17, 19, 20],
 };
 
-// Show DB tags only at the exact step(s) we specify,
-// BUT once we reach MAX_ORDER we show all tags at once (final snapshot).
 const isDbActive = (eventKey, currentStep) => {
   const triggers = DB_EVENTS[eventKey] || [];
-  if (currentStep >= MAX_ORDER) {
-    return triggers.length > 0;
-  }
+  if (currentStep >= MAX_ORDER) return triggers.length > 0;
   return triggers.includes(currentStep);
 };
 
 // ---------------------------------------------------------------------------
-// Small UI helpers (same style as Design phase)
+// Small UI helpers
 // ---------------------------------------------------------------------------
 
 const NumberBadge = ({ n, color = "gray" }) => (
@@ -233,7 +248,7 @@ const TimeTag = ({ label }) => <span className="time-tag">{label}</span>;
 
 const Card = ({ color, title, icon, stepNo, children, supportKey, detail }) => {
   const [hovered, setHovered] = useState(false);
-  const [open, setOpen] = useState(false); // tap on mobile
+  const [open, setOpen] = useState(false);
   const sources = supportKey ? SUPPORTING_SOURCES[supportKey] : null;
   const showTooltip = (hovered || open) && (detail || sources);
 
@@ -340,14 +355,10 @@ const Step = ({ icon, label, detail, stepNo, supportKey }) => {
 const Reveal = ({ order, currentStep, resetToken, children }) => {
   const [hasAppeared, setHasAppeared] = useState(false);
 
-  useEffect(() => {
-    setHasAppeared(false);
-  }, [resetToken]);
+  useEffect(() => setHasAppeared(false), [resetToken]);
 
   useEffect(() => {
-    if (!hasAppeared && currentStep >= order) {
-      setHasAppeared(true);
-    }
+    if (!hasAppeared && currentStep >= order) setHasAppeared(true);
   }, [currentStep, hasAppeared, order]);
 
   return (
@@ -369,7 +380,7 @@ const Reveal = ({ order, currentStep, resetToken, children }) => {
 export default function PostOccupancy_Animated_Numbered() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [deliveryModel, setDeliveryModel] = useState("BTS"); // "BTS" or "BTR"
+  const [deliveryModel, setDeliveryModel] = useState("BTS");
   const [resetToken, setResetToken] = useState(0);
 
   const isBTR = deliveryModel === "BTR";
@@ -380,10 +391,7 @@ export default function PostOccupancy_Animated_Numbered() {
     let timeout;
 
     const tick = () => {
-      setCurrentStep((prev) => {
-        const next = prev >= MAX_ORDER ? MAX_ORDER : prev + 1;
-        return next;
-      });
+      setCurrentStep((prev) => (prev >= MAX_ORDER ? MAX_ORDER : prev + 1));
       timeout = window.setTimeout(tick, 1100);
     };
 
@@ -406,10 +414,10 @@ export default function PostOccupancy_Animated_Numbered() {
           <div className="header-left">
             <h1>Phase three — Post-occupancy &amp; learning</h1>
             <p>
-              The same platform now closes the loop in use. It compares{" "}
+              The platform closes the loop in use by comparing{" "}
               <strong>actual performance and resident experience</strong> with
-              the promises made in the brief and design, and it writes learning
-              back into the Knowledge Hub and the next planning cycle.
+              design promises, then writing learning back into the Knowledge Hub
+              and the next planning cycle.
             </p>
             <div className="chip-row">
               <span className="chip">
@@ -420,10 +428,7 @@ export default function PostOccupancy_Animated_Numbered() {
           </div>
 
           <div className="header-actions">
-            <button
-              className="btn btn-primary"
-              onClick={() => setIsPlaying(true)}
-            >
+            <button className="btn btn-primary" onClick={() => setIsPlaying(true)}>
               <Play size={16} />
               <span>Play</span>
             </button>
@@ -444,25 +449,17 @@ export default function PostOccupancy_Animated_Numbered() {
             <h2>How to read this diagram</h2>
             <ol>
               <li>
-                Start with the{" "}
-                <strong>responsibility gate for post-occupancy</strong> – it
-                differs between BTS and BTR.
+                Start with the <strong>responsibility gate</strong> – it differs
+                between BTS and BTR.
               </li>
               <li>
-                Follow the <strong>numbered steps</strong> from left to right:
-                yellow = developer/asset owner, blue = digital platform, green =
-                consultants and technical support, purple = operations and
-                residents.
+                Follow the <strong>numbered processes</strong> in order:
+                yellow = developer/asset owner, blue = platform, green =
+                consultants, purple = operations and residents.
               </li>
               <li>
-                <strong>Short labels</strong> are always visible. Hover on cards
-                and steps to see detailed explanations and the standards and
-                frameworks used.
-              </li>
-              <li>
-                The right-hand panel shows which{" "}
-                <strong>database layers (L1–L7)</strong> are active and how
-                operational learning flows into the next project.
+                Hover (or tap) to see the <strong>full explanation</strong> and
+                supporting standards.
               </li>
             </ol>
           </div>
@@ -472,9 +469,7 @@ export default function PostOccupancy_Animated_Numbered() {
             <div className="legend-grid">
               <div className="legend-item">
                 <span className="legend-dot legend-dev" />
-                <span>
-                  Developer / asset owner (BTR) or strategic sponsor (BTS)
-                </span>
+                <span>Developer / asset owner (BTR) or sponsor (BTS)</span>
               </div>
               <div className="legend-item">
                 <span className="legend-dot legend-platform" />
@@ -486,9 +481,7 @@ export default function PostOccupancy_Animated_Numbered() {
               </div>
               <div className="legend-item">
                 <span className="legend-dot legend-users" />
-                <span>
-                  Operations team (on-site or strata management) and residents
-                </span>
+                <span>Operations team and residents</span>
               </div>
             </div>
             <div className="legend-db">
@@ -500,18 +493,18 @@ export default function PostOccupancy_Animated_Numbered() {
               <div className="legend-db-row">
                 <Upload size={14} />
                 <span>WRITE</span>
-                <span className="legend-db-desc">Add records to a layer</span>
+                <span className="legend-db-desc">Add records</span>
               </div>
               <div className="legend-db-row">
                 <RefreshCcw size={14} />
                 <span>UPDATE</span>
-                <span className="legend-db-desc">Update patterns and rules</span>
+                <span className="legend-db-desc">Update patterns/rules</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Responsibility gate + phase overview */}
+        {/* Gate cards (1–2) */}
         <div className="gate-grid">
           <Card
             color="amber"
@@ -520,21 +513,16 @@ export default function PostOccupancy_Animated_Numbered() {
             stepNo={1}
           >
             <p className="card-inline">
-              Accountability differs by delivery model. In{" "}
-              <strong>Build to Rent (BTR)</strong>, the{" "}
-              <strong>developer / asset owner</strong> remains responsible for
-              resident experience and long-term performance. In{" "}
-              <strong>Build to Sell (BTS)</strong>, day-to-day responsibility
-              shifts to the <strong>operational team</strong> (for example strata
-              manager, owners corporation and building manager).
+              In <strong>BTR</strong>, the <strong>developer/asset owner</strong>{" "}
+              remains responsible for resident experience. In <strong>BTS</strong>,
+              responsibility shifts to the <strong>operational team</strong>{" "}
+              (strata/owners corporation/building manager).
             </p>
             <div className="delivery-toggle">
               <span>Delivery model:</span>
               <button
                 className={`btn-chip ${
-                  deliveryModel === "BTS"
-                    ? "btn-chip-bts-active"
-                    : "btn-chip-bts"
+                  deliveryModel === "BTS" ? "btn-chip-bts-active" : "btn-chip-bts"
                 }`}
                 onClick={() => setDeliveryModel("BTS")}
               >
@@ -543,9 +531,7 @@ export default function PostOccupancy_Animated_Numbered() {
               </button>
               <button
                 className={`btn-chip ${
-                  deliveryModel === "BTR"
-                    ? "btn-chip-btr-active"
-                    : "btn-chip-btr"
+                  deliveryModel === "BTR" ? "btn-chip-btr-active" : "btn-chip-btr"
                 }`}
                 onClick={() => setDeliveryModel("BTR")}
               >
@@ -562,26 +548,12 @@ export default function PostOccupancy_Animated_Numbered() {
             stepNo={2}
           >
             <p className="card-inline">
-              The platform orchestrates{" "}
-              <strong>performance data, resident feedback and operations insight</strong>.
-              It identifies gaps against the design promises, proposes improvement
-              packages and writes learning back for the next scheme.
+              The platform orchestrates <strong>performance data</strong>,{" "}
+              <strong>complaints</strong> and <strong>resident feedback</strong>,
+              triangulates evidence, and produces an auditable improvement record
+              that feeds the next planning cycle.
             </p>
-            <ul className="card-list">
-              <li>
-                Metrics, complaints and surveys are <strong>triangulated</strong>{" "}
-                before action.
-              </li>
-              <li>
-                Improvement loops are <strong>bounded in time</strong> (for example
-                6–12 months) and recorded in the decision log.
-              </li>
-              <li>
-                Stable patterns feed directly into the <strong>next planning brief</strong>{" "}
-                via the Knowledge Hub.
-              </li>
-            </ul>
-            <TimeTag label="Approx. 6–12 month review windows" />
+            <TimeTag label="6–12 month review windows (cyclical)" />
           </Card>
         </div>
 
@@ -594,41 +566,32 @@ export default function PostOccupancy_Animated_Numbered() {
                 <Reveal order={3} currentStep={currentStep} resetToken={resetToken}>
                   <Card
                     color={responsibleColor}
-                    title={
-                      isBTR
-                        ? "Developer / asset owner — set POE goals"
-                        : "Operations / strata — set POE goals"
-                    }
+                    title={isBTR ? "Developer / asset owner — set POE goals" : "Operations / strata — set POE goals"}
                     icon={<Target />}
                     stepNo={3}
                     supportKey="po-intake"
                     detail={
                       <>
                         <p>
-                          Defines how success will be judged in use, and how often
-                          the platform will run full POE cycles. Responsibility sits
-                          with the{" "}
-                          <strong>
-                            developer/asset owner in BTR, operations/strata in BTS
-                          </strong>
-                          .
+                          Defines how success will be judged in use and how often
+                          POE cycles run. Responsibility sits with{" "}
+                          <strong>{isBTR ? "the owner (BTR)" : "operations/strata (BTS)"}</strong>.
                         </p>
                         <ul className="card-list">
-                          <li>Confirms comfort, complaints, utility and sustainability thresholds.</li>
-                          <li>Sets the length of observation windows (for example annual or seasonal).</li>
-                          <li>Confirms which resident and operations cohorts must be heard in each cycle.</li>
+                          <li>Confirms comfort, complaints and sustainability thresholds.</li>
+                          <li>Sets observation windows (seasonal/annual).</li>
+                          <li>Confirms cohorts to be included each cycle.</li>
                         </ul>
-                        <TimeTag label="1–2 weeks at the start of each POE cycle" />
                       </>
                     }
                   >
                     <p className="card-inline">
-                      Confirms what “good in use” looks like and how often the building will be reviewed.
+                      Confirms what “good in use” looks like and how often review happens.
                     </p>
                   </Card>
                 </Reveal>
 
-                <Reveal order={15} currentStep={currentStep} resetToken={resetToken}>
+                <Reveal order={14} currentStep={currentStep} resetToken={resetToken}>
                   <Card
                     color={responsibleColor}
                     title="Review findings & agree priorities"
@@ -638,26 +601,24 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Reviews the dashboards and evidence pack produced by the platform and agrees which
-                          issues are strategic versus local, and which can be realistically addressed.
+                          Reviews the evidence pack and agrees what is strategic,
+                          what is local, and what is feasible within budgets and constraints.
                         </p>
                         <ul className="card-list">
-                          <li>Distinguishes “must fix” issues from desirable enhancements.</li>
-                          <li>Balances capital and operational budgets against resident and sustainability benefits.</li>
-                          <li>Records accepted, deferred and rejected actions in the decision log.</li>
+                          <li>Separates “must-fix” from optional enhancements.</li>
+                          <li>Balances cost, disruption and benefit.</li>
+                          <li>Records decisions in the log.</li>
                         </ul>
-                        <TimeTag label="2–3 weeks including governance cycles" />
                       </>
                     }
                   >
                     <p className="card-inline">
-                      Reviews the evidence pack and agrees which improvements to pursue.
+                      Reviews evidence and agrees which improvements to pursue.
                     </p>
                   </Card>
                 </Reveal>
 
-                {/* NEW: Process 17 (missing before) */}
-                <Reveal order={18} currentStep={currentStep} resetToken={resetToken}>
+                <Reveal order={17} currentStep={currentStep} resetToken={resetToken}>
                   <Card
                     color={responsibleColor}
                     title="Approve preferred improvement package"
@@ -667,26 +628,24 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Confirms the preferred package (tuning, minor works and/or capital items) before
-                          implementation. This is a formal approval moment so the POE cycle stays controlled
-                          and traceable.
+                          Formal approval moment to keep POE controlled and traceable.
+                          Confirms scope, budget and sequencing before implementation.
                         </p>
                         <ul className="card-list">
-                          <li>Confirms scope, budget and sequencing constraints.</li>
-                          <li>Sets a time-box for implementation and re-measurement.</li>
-                          <li>Locks the “approved package” in the decision log for auditability.</li>
+                          <li>Approves the preferred package and time-box for delivery.</li>
+                          <li>Locks the approved scope in the decision log.</li>
+                          <li>Sets re-measurement requirements for the learning loop.</li>
                         </ul>
-                        <TimeTag label="Gated approval event" />
                       </>
                     }
                   >
                     <p className="card-inline">
-                      Approves the preferred package so implementation can proceed.
+                      Approves the package so implementation and re-measurement can proceed.
                     </p>
                   </Card>
                 </Reveal>
 
-                <Reveal order={21} currentStep={currentStep} resetToken={resetToken}>
+                <Reveal order={20} currentStep={currentStep} resetToken={resetToken}>
                   <Card
                     color={responsibleColor}
                     title="Decide on capital works & feed next brief"
@@ -696,20 +655,19 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Confirms any capital works programme and instructs the platform to update L1, L3,
-                          L6 and L7 so that the next planning brief reflects what has been learned.
+                          Confirms any capital works programme and instructs the platform to
+                          update records so the next planning brief starts smarter.
                         </p>
                         <ul className="card-list">
-                          <li>Locks a traceable record of decisions and rationales.</li>
-                          <li>Flags stable patterns as rules for future schemes.</li>
-                          <li>Marks the POE cycle as closed to avoid endless re-opening.</li>
+                          <li>Locks decisions and rationales.</li>
+                          <li>Flags stable patterns for future rules.</li>
+                          <li>Closes the cycle to prevent endless re-opening.</li>
                         </ul>
-                        <TimeTag label="Gated decision event at the end of the cycle" />
                       </>
                     }
                   >
                     <p className="card-inline">
-                      Locks decisions, programmes any capital works and writes learning into the next brief.
+                      Locks decisions and writes learning into the next planning cycle.
                     </p>
                   </Card>
                 </Reveal>
@@ -719,8 +677,8 @@ export default function PostOccupancy_Animated_Numbered() {
               <div className="phase-col phase-col-wide">
                 <Card color="blue" title="Digital platform" icon={<Database />}>
                   <p className="card-inline">
-                    Pulls together <strong>as-built information</strong>, performance data, complaints, service
-                    tickets and resident feedback, then proposes{" "}
+                    Pulls together <strong>as-built information</strong>, performance data,
+                    complaints and resident feedback, then generates{" "}
                     <strong>evidence-based improvement options</strong>.
                   </p>
 
@@ -729,7 +687,7 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={4}
                       icon={<FileText size={18} />}
                       label="Read as-built brief & expectations"
-                      detail="Reads L1 (brief and addenda), L3 (design decisions) and L4 (target performance) to understand what was promised and what constraints apply."
+                      detail="Reads L1 (brief/addenda), L3 (design decisions) and L4 (targets) to set the baseline for comparison."
                       supportKey="po-intake"
                     />
                   </Reveal>
@@ -739,7 +697,7 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={5}
                       icon={<LineChart size={18} />}
                       label="Ingest operational and sensor data"
-                      detail="Collects utility data, BMS and IoT feeds, and key maintenance/complaint logs into L4 and L5 as structured records."
+                      detail="Collects utility data, BMS/IoT feeds and key logs into L4 and L5 as structured records."
                       supportKey="po-metrics"
                     />
                   </Reveal>
@@ -749,7 +707,7 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={8}
                       icon={<AlertTriangle size={18} />}
                       label="Run performance diagnostics"
-                      detail="Compares actual energy, comfort and complaints against thresholds, flags hotspots and trends, and estimates whole-life carbon impacts."
+                      detail="Compares actual energy, comfort and complaints against thresholds; flags hotspots and trends."
                       supportKey="po-metrics"
                     />
                   </Reveal>
@@ -759,7 +717,7 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={10}
                       icon={<ClipboardList size={18} />}
                       label="Design resident & ops surveys"
-                      detail="Builds short, targeted instruments for residents and operations to understand why issues occur and what trade-offs are acceptable."
+                      detail="Builds short, targeted instruments to explain causes and capture acceptable trade-offs."
                       supportKey="po-surveys"
                     />
                   </Reveal>
@@ -769,7 +727,7 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={11}
                       icon={<SlidersHorizontal size={18} />}
                       label="Triangulate feedback with data"
-                      detail="Combines survey responses, digital engagement patterns and telemetry so that improvement ideas reflect behaviour as well as stated preferences."
+                      detail="Combines survey input with telemetry and operational logs so conclusions reflect behaviour and experience."
                       supportKey="po-triangulation"
                     />
                   </Reveal>
@@ -779,8 +737,19 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={13}
                       icon={<Settings2 size={18} />}
                       label="Generate improvement options"
-                      detail="Bundles tuning measures, minor works and potential capital projects into costed, prioritised packages, each linked to evidence and projected benefit."
+                      detail="Creates a structured set of tuning measures, minor works and potential capital projects linked to evidence."
                       supportKey="po-actions"
+                    />
+                  </Reveal>
+
+                  {/* NEW: Process 15 to fix missing number and improve logic */}
+                  <Reveal order={15} currentStep={currentStep} resetToken={resetToken}>
+                    <Step
+                      stepNo={15}
+                      icon={<PackageCheck size={18} />}
+                      label="Package options into an evidence pack"
+                      detail="Ranks options, estimates benefit vs disruption, and prepares a clear ‘evidence pack’ and preferred package candidates for governance review."
+                      supportKey="po-packaging"
                     />
                   </Reveal>
 
@@ -789,7 +758,7 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={18}
                       icon={<RefreshCcw size={18} />}
                       label="Post-occupancy learning loop (bounded)"
-                      detail="Runs up to two short cycles: implement selected tweaks, re-measure key metrics and sentiment, and update the evidence pack. Loops are time-boxed and version-controlled so POE does not become an endless process."
+                      detail="Implements selected tweaks, re-measures key metrics and sentiment, and updates the evidence pack within a fixed time window."
                       supportKey="po-loop"
                     />
                   </Reveal>
@@ -799,7 +768,7 @@ export default function PostOccupancy_Animated_Numbered() {
                       stepNo={19}
                       icon={<Upload size={18} />}
                       label="Write back to hub & next brief"
-                      detail="Updates L6 (patterns and rules) and L7 (roles and standards), and prepares a summary bundle ready to seed the next planning brief."
+                      detail="Updates L6 (patterns/rules) and L7 (roles/standards) and prepares a structured bundle to seed the next planning brief."
                       supportKey="po-governance"
                     />
                   </Reveal>
@@ -818,15 +787,13 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Provide technical diagnosis and feasible measures, from tuning existing systems to
-                          planning targeted retrofits.
+                          Provide technical diagnosis and feasible measures, from tuning systems to targeted retrofits.
                         </p>
                         <ul className="card-list">
                           <li>Interpret diagnostics from the platform and BMS.</li>
-                          <li>Propose technical options with constraints and risks.</li>
+                          <li>Propose feasible options with constraints and risks.</li>
                           <li>Record assumptions and dependencies in L3.</li>
                         </ul>
-                        <TimeTag label="Targeted input early in each cycle" />
                       </>
                     }
                   >
@@ -846,15 +813,13 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Quantity surveyor and FM leadership build cost and programme views for proposed
-                          interventions.
+                          Builds cost, programme and disruption views for the proposed interventions.
                         </p>
                         <ul className="card-list">
-                          <li>Estimate capital and operational expenditure and simple paybacks.</li>
-                          <li>Flag staging issues and resident-disruption risks.</li>
-                          <li>Attach structured estimates to each option in L3/L4.</li>
+                          <li>Estimates capex/opex and simple payback.</li>
+                          <li>Flags staging and resident disruption risks.</li>
+                          <li>Attaches estimates to options in L3/L4.</li>
                         </ul>
-                        <TimeTag label="2–4 weeks depending on scope" />
                       </>
                     }
                   >
@@ -867,7 +832,7 @@ export default function PostOccupancy_Animated_Numbered() {
 
               {/* Operations & residents column */}
               <div className="phase-col">
-                <Reveal order={8} currentStep={currentStep} resetToken={resetToken}>
+                <Reveal order={9} currentStep={currentStep} resetToken={resetToken}>
                   <Card
                     color="purple"
                     title="Operations team"
@@ -877,15 +842,13 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Day-to-day building managers, leasing and resident services teams log friction
-                          points and help interpret data in context.
+                          Day-to-day teams log friction points, maintain service tickets and interpret issues in context.
                         </p>
                         <ul className="card-list">
-                          <li>Maintain structured complaint and service-ticket logs feeding L2 and L5.</li>
+                          <li>Maintain complaint and ticket logs feeding L2 and L5.</li>
                           <li>Provide practical constraints and work-arounds.</li>
-                          <li>Help prioritise low-cost, high-impact tweaks.</li>
+                          <li>Help identify low-cost, high-impact tweaks.</li>
                         </ul>
-                        <TimeTag label="Continuous, surfaced at each POE cycle" />
                       </>
                     }
                   >
@@ -895,7 +858,8 @@ export default function PostOccupancy_Animated_Numbered() {
                   </Card>
                 </Reveal>
 
-                <Reveal order={9} currentStep={currentStep} resetToken={resetToken}>
+                {/* FIXED: Residents now appear at Process 12 (after 10 and 11) */}
+                <Reveal order={12} currentStep={currentStep} resetToken={resetToken}>
                   <Card
                     color="purple"
                     title="Residents & user panels"
@@ -905,15 +869,13 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Residents describe comfort, noise, security and service experiences and react to
-                          proposed changes.
+                          Residents describe comfort, noise, security and service experience and react to proposed changes.
                         </p>
                         <ul className="card-list">
                           <li>Participate in short surveys, interviews or digital panels.</li>
                           <li>Compare options with simple explanations of cost, disruption and benefit.</li>
                           <li>Feedback is stored in L2 with links to affected spaces and systems.</li>
                         </ul>
-                        <TimeTag label="2–3 week feedback windows" />
                       </>
                     }
                   >
@@ -933,20 +895,18 @@ export default function PostOccupancy_Animated_Numbered() {
                     detail={
                       <>
                         <p>
-                          Before implementation, the platform runs a short validation round with residents
-                          and operations for the preferred improvement package.
+                          Before implementation, runs a short validation round with residents and operations to confirm fit and surface unintended consequences.
                         </p>
                         <ul className="card-list">
-                          <li>Confirms that proposed changes address real pain points.</li>
-                          <li>Surfaces any unintended consequences early.</li>
-                          <li>Captures final comments to attach to the decision log.</li>
+                          <li>Confirms the package addresses real pain points.</li>
+                          <li>Surfaces unintended consequences early.</li>
+                          <li>Captures final comments for the decision record.</li>
                         </ul>
-                        <TimeTag label="Short, bounded validation loop" />
                       </>
                     }
                   >
                     <p className="card-inline">
-                      Runs a short validation round on the preferred improvement package.
+                      Runs a bounded validation round on the preferred package.
                     </p>
                   </Card>
                 </Reveal>
@@ -971,10 +931,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     </span>
                   )}
                 </div>
-                <p>
-                  Final brief, design addenda and as-built configuration used as the reference point for
-                  post-occupancy comparisons.
-                </p>
+                <p>Final brief and as-built configuration used as the reference point for comparison.</p>
               </div>
 
               <div className="db-layer">
@@ -991,10 +948,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     </span>
                   )}
                 </div>
-                <p>
-                  Structured feedback from residents, building management, leasing and service teams used
-                  to explain performance patterns.
-                </p>
+                <p>Structured feedback and operational logs used to explain performance patterns.</p>
               </div>
 
               <div className="db-layer">
@@ -1011,10 +965,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     </span>
                   )}
                 </div>
-                <p>
-                  Records of which POE actions were accepted, deferred or rejected, with links to evidence
-                  and responsible parties.
-                </p>
+                <p>Traceable record of decisions with links to evidence and responsible parties.</p>
               </div>
 
               <div className="db-layer">
@@ -1031,10 +982,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     </span>
                   )}
                 </div>
-                <p>
-                  Utility, comfort and cost metrics for each POE cycle, including before/after comparisons
-                  for interventions.
-                </p>
+                <p>Utility, comfort and cost metrics, including before/after comparisons for interventions.</p>
               </div>
 
               <div className="db-layer">
@@ -1051,10 +999,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     </span>
                   )}
                 </div>
-                <p>
-                  Detailed POE records, complaint histories and BMS/IoT traces tied to locations, systems
-                  and time periods.
-                </p>
+                <p>Detailed POE records, complaint histories and BMS/IoT traces tied to spaces and systems.</p>
               </div>
 
               <div className="db-layer">
@@ -1071,10 +1016,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     </span>
                   )}
                 </div>
-                <p>
-                  Cross-project patterns and “do / do not” rules updated at the end of each POE cycle so
-                  future briefs start smarter.
-                </p>
+                <p>Cross-project patterns updated so future briefs start smarter.</p>
               </div>
 
               <div className="db-layer">
@@ -1086,10 +1028,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     </span>
                   )}
                 </div>
-                <p>
-                  Records who is responsible for POE in BTS and BTR, along with applicable standards,
-                  rating tools and approval requirements.
-                </p>
+                <p>Records POE responsibility (BTS vs BTR) and applicable standards and approval requirements.</p>
               </div>
             </div>
           </aside>
