@@ -707,7 +707,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     color={responsibleColor}
                     title="Decide on capital works & feed next brief"
                     icon={<CheckCircle2 />}
-                    stepNo={20}
+                    stepNo={19}
                     supportKey="po-governance"
                     detail={
                       <>
@@ -856,7 +856,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     resetToken={resetToken}
                   >
                     <Step
-                      stepNo={16}
+                      stepNo={18}
                       icon={<Upload size={18} />}
                       label="Write back to hub & next brief"
                       detail="Updates L6 (patterns and rules) and L7 (roles and standards), and prepares a summary bundle ready to seed the next planning brief."
@@ -961,7 +961,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     color="purple"
                     title="Operations team"
                     icon={<Users />}
-                    stepNo={9}
+                    stepNo={8}
                     supportKey="po-ops"
                     detail={
                       <>
@@ -1002,7 +1002,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     color="purple"
                     title="Residents & user panels"
                     icon={<Send />}
-                    stepNo={11}
+                    stepNo={12}
                     supportKey="po-residents"
                     detail={
                       <>
@@ -1044,7 +1044,7 @@ export default function PostOccupancy_Animated_Numbered() {
                     color="purple"
                     title="Validate preferred package"
                     icon={<ListChecks />}
-                    stepNo={16}
+                    stepNo={17}
                     supportKey="po-validate"
                     detail={
                       <>
